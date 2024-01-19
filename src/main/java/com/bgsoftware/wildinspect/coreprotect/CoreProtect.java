@@ -28,8 +28,7 @@ public final class CoreProtect {
     private static final Pattern NO_DATA_PATTERN = Pattern.compile("%sCoreProtect §f- §fNo (.*) found for (.*)\\.".replace("%s", COREPROTECT_COLOR));
     private static final Pattern DATA_HEADER_PATTERN = Pattern.compile("§f----- %s(.*) §f----- §7\\(x(.*)/y(.*)/z(.*)\\)".replace("%s", COREPROTECT_COLOR));
     private static final Pattern DATA_LINE_PATTERN = Pattern.compile("§7(.*) ((§f|§c)-|§a\\+) %s(.*)§f(.*) %s(.*)§f\\.".replace("%s", COREPROTECT_COLOR));
-    private static final Pattern DATA_FOOTER_PATTERN = isNewFooter() ? Pattern.compile("§f(◀ )?Page (.*)/(.*) (▶ )?\\| To view a page, type \"%s/co l <page>§f\"\\.".replace("%s", COREPROTECT_COLOR)) :
-            Pattern.compile("§fPage (.*)/(.*)\\. View older data by typing \"%s/co l <page>§f\"\\.".replace("%s", COREPROTECT_COLOR));
+    private static final Pattern DATA_FOOTER_PATTERN = Pattern.compile("§f%sPage §f(.*)/(.*)§7\\)".replace("%s", COREPROTECT_COLOR));
 
     private final WildInspectPlugin plugin;
 
@@ -117,6 +116,7 @@ public final class CoreProtect {
             boolean empty = true;
 
             for (String line : resultLines) {
+                System.out.println(" - " + line);
                 if ((matcher = NO_DATA_PATTERN.matcher(line)).matches()) {
                     switch (matcher.group(1)) {
                         case "player interactions":
@@ -146,7 +146,7 @@ public final class CoreProtect {
                                 playerAction, actionType, blockAction));
                     }
                 } else if ((matcher = DATA_FOOTER_PATTERN.matcher(line)).matches()) {
-                    int linePage = Integer.parseInt(matcher.group(2));
+                    int linePage = Integer.parseInt(matcher.group(1));
                     message.append("\n").append(Locale.INSPECT_DATA_FOOTER.getMessage(Math.max(linePage, 1),
                             Math.min(maxPage - 1, plugin.getSettings().historyLimitPage)));
                 }

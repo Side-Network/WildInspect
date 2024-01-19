@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.Statement;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +24,7 @@ public final class CoreProtectHook {
 
     private static final ReflectMethod<String> INTERACTION_LOOKUP_V20_METHOD = new ReflectMethod<>("net.coreprotect.database.lookup.InteractionLookup", "performLookup", String.class, Statement.class, Block.class, CommandSender.class, int.class, int.class, int.class);
     private static final ReflectMethod<String> BLOCK_LOOKUP_V20_METHOD = new ReflectMethod<>("net.coreprotect.database.lookup.BlockLookup", "performLookup", String.class, Statement.class, BlockState.class, CommandSender.class, int.class, int.class, int.class);
-    private static final ReflectMethod<String> CHEST_TRANSACTION_LOOKUP_V20_METHOD = new ReflectMethod<>("net.coreprotect.database.lookup.ChestTransactionLookup", "performLookup", String.class, Statement.class, Location.class, CommandSender.class, int.class, int.class, boolean.class);
+    private static final ReflectMethod<List<String>> CHEST_TRANSACTION_LOOKUP_V20_METHOD = new ReflectMethod<>("net.coreprotect.database.lookup.ChestTransactionLookup", "performLookup", String.class, Statement.class, Location.class, CommandSender.class, int.class, int.class, boolean.class);
 
     public static String[] performInteractLookup(Statement statement, Player player, Block block, int page) {
         if (INTERACTION_LOOKUP_METHOD.isValid()) {
@@ -49,7 +50,8 @@ public final class CoreProtectHook {
         if (CHEST_TRANSACTION_LOOKUP_METHOD.isValid()) {
             return parseResult(CHEST_TRANSACTION_LOOKUP_METHOD.invoke(null, statement, block.getLocation(), player.getName(), page, 7, false));
         } else if (CHEST_TRANSACTION_LOOKUP_V20_METHOD.isValid()) {
-            return parseResult(CHEST_TRANSACTION_LOOKUP_V20_METHOD.invoke(null, null, statement, block.getLocation(), player, page, 7, false));
+            List<String> unparsed = CHEST_TRANSACTION_LOOKUP_V20_METHOD.invoke(null, null, statement, block.getLocation(), player, page, 7, false);
+            return parseResult(String.join("\n", unparsed));
         } else {
             return parseResult(Lookup.chestTransactions(null, statement, block.getLocation(), player, page, 7, false));
         }
